@@ -156,9 +156,12 @@ class Generator extends \SwaggerLume\Generator
         if (!empty($newData)) {
             $keys = array_keys($newData);
             foreach ($keys as $key) {
+                if (empty($newData[$key])) {
+                    continue;
+                }
                 // 该字段已存在，且为数组则合并数据；否则则覆盖原有数据
-                if (isset($oldData[$key]) && is_array($newData[$key])) {
-                    $oldData[$key] = array_merge((array)$oldData[$key], $newData[$key]);
+                if (isset($oldData[$key]) && is_array($oldData[$key])) {
+                    $oldData[$key] = array_merge((array)$oldData[$key], (array)$newData[$key]);
                 } else {
                     $oldData[$key] = $newData[$key];
                 }
