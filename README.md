@@ -19,15 +19,15 @@ composer require --dev soliangd/lumen-yaml-swagger
     ```php
          $app->withFacades();
     ```
-- 添加配置加载:
+- 复制配置并加载:
     ```php
-         $app->configure('swagger-lume');
+         $app->configure('yaml-swagger');
     ```
 - 注册服务:
     ```php
         $app->register(\Soocoo\Swagger\SwaggerLumenServiceProvider::class);
     ```
-- 配置YAML目录 `config/swagger-lume.php`：
+- 配置YAML目录 `config/yaml-swagger.php`：
     ````php
     [
         "paths" => [
