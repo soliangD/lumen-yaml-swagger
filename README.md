@@ -35,5 +35,13 @@ composer require --dev soliangd/lumen-yaml-swagger
         ]
     ]
     ````
+- 路由重定向
+    ````php
+    注意nginx配置时将 swagger路由重定向 swagger文档支持
+         location ~ /(swagger-ui-assets) {
+             index index.php;
+             try_files $uri $uri/ /index.php?$query_string;
+         }
+    ````php
 
 #### 其它使用见 [SwaggerLume](https://github.com/DarkaOnLine/SwaggerLume) 文档
