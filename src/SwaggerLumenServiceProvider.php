@@ -3,12 +3,13 @@
 namespace Soocoo\Swagger;
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 class SwaggerLumenServiceProvider extends \Illuminate\Support\ServiceProvider
 {
     public function register()
     {
-        //$this->registerConfig('yaml-swagger');
+        $this->registerConfig('yaml-swagger');
 
         $this->app->register(\SwaggerLume\ServiceProvider::class);
 
@@ -24,11 +25,37 @@ class SwaggerLumenServiceProvider extends \Illuminate\Support\ServiceProvider
 
         $yamlSwaggerConfig = $this->app['config']->get($key, []);
 
-        $module = $this->getModule();
+        $swaagerLumeConfig = $this->getSwaagerLumeConfig($yamlSwaggerConfig);
 
-        //todo
+        $this->app['config']->set('swagger-lume', $swaagerLumeConfig);
+    }
 
-        $this->mergeConfigFrom($configPath, 'swagger-lume');
+    protected function getSwaagerLumeConfig($yamlSwaggerConfig)
+    {
+        $module = $this->getModule(Arr::get($yamlSwaggerConfig, 'default', 'api'));
+
+        $moduleConfig = Arr::get($yamlSwaggerConfig, "module.{$module}", []);
+
+        $swaagerLumeConfig = array_merge($moduleConfig, Arr::get($yamlSwaggerConfig, "common", []));
+
+        $this->formatRouteList($swaagerLumeConfig, $module);
+
+        return $swaagerLumeConfig;
+    }
+
+    protected function formatRouteList(&$swaagerLumeConfig, $module)
+    {
+        $routeList = Arr::get($swaagerLumeConfig, 'routes');
+        if (is_null($routeList)) {
+            return;
+        }
+        foreach ($routeList as &$route) {
+            if (is_string($route)) {
+                $route = Str::start($module, '/') . Str::start($route, '/');
+            }
+        }
+
+        Arr::set($swaagerLumeConfig, 'routes', $routeList);
     }
 
     protected function getModule($default)
@@ -36,10 +63,7 @@ class SwaggerLumenServiceProvider extends \Illuminate\Support\ServiceProvider
         $module = $default;
         //前端访问模块
         if ($route = Arr::get($_SERVER, 'REQUEST_URI')) {
-            if (preg_match('/\/([^<]*)\/documentation/i', $route, $matches)) {
-                $module = $matches[1];
-            }
-            if (preg_match('/\/docs-([^<]*)/i', $route, $matches)) {
+            if (preg_match('/\/([^.]*?)\//i', $route, $matches)) {
                 $module = $matches[1];
             }
         }
@@ -48,7 +72,7 @@ class SwaggerLumenServiceProvider extends \Illuminate\Support\ServiceProvider
         if (function_exists('fwrite') && defined('STDOUT')) {
             if ($argv = Arr::get($_SERVER, 'argv')) {
                 if (isset($argv[1]) && $argv[1] == 'swagger-lume:generate') {
-                    fwrite(STDOUT, 'Please input module name (default admin): ');
+                    fwrite(STDOUT, "Please input module name (default {$module}): ");
                     $module = (str_replace(PHP_EOL, '', fgets(STDIN))) ?: $module;
                 }
             }
