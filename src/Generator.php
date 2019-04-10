@@ -90,7 +90,7 @@ class Generator extends \SwaggerLume\Generator
         $excludeDirs = config('swagger-lume.paths.excludes');
 
         // 读取注释目录并解析，支持数组
-        $yamlDirs = config('swagger-lume.paths.yaml_annotations', base_path('apps'));
+        $yamlDirs = config('swagger-lume.paths.yaml_annotations', config('swagger-lume.paths.annotations'));
         $yamlData = [];
         if (is_string($yamlDirs)) {
             $yamlDirs = [$yamlDirs];
