@@ -82,7 +82,7 @@ class LumenTestCase extends TestCase
         $app->register(SwaggerLumeServiceProvider::class);
 
         $app->router->group(['namespace' => 'SwaggerLume'], function ($route) {
-            require __DIR__ . '/../src/routes.php';
+            require __DIR__ . '/routes.php';
         });
 
         $this->copyAssets();
